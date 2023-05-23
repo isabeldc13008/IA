@@ -1,0 +1,59 @@
+# Definicion de base de conocimiento para las reglas lógicas
+base_conocimiento = [
+    ("punto(A)", "es_origen(A)"),
+    ("punto(B)", "es_destino(B)"),
+    ("ruta(X, Y, Distancia)", "conectado(X, Y, Distancia)"),
+    ("ruta(X, Y, Distancia)", "conectado(Y, X, Distancia)"),
+    ("ruta(X, Y, Distancia + buscarY)", "conectado(X, Y, Distancia)", "buscar(Y, buscarY)"),
+]
+
+# Definir la función de A*
+def buscar_ruta(origen, destino, base_conocimiento):
+    # Inicializar las estructuras de datos
+    abiertos = [(origen, 0)]
+    cerrados = []
+    ruta_actual = {origen: None}
+    recorrido_g = {origen: 0}
+
+    # el buscar el destino
+    def buscar(punto, destino):
+        # me falta hacer la busqueda
+        return 0
+
+    # Realizar la búsqueda A*
+    while abiertos:
+        # Seleccionar el punto con el recorrido más bajo
+        punto_actual, recorrido_actual = min(abiertos, key=lambda x: x[1])
+        abiertos = [punto for punto in abiertos if punto[0] != punto_actual]
+        cerrados.append(punto_actual)
+
+        # destino, construir la ruta y terminar
+        if punto_actual == destino:
+            ruta_optima = []
+            while punto_actual != origen:
+                ruta_optima.append(punto_actual)
+                punto_actual = ruta_actual[punto_actual]
+            ruta_optima.append(origen)
+            ruta_optima.reverse()
+            return ruta_optima
+
+        # puntos adyacentes
+        for regla in base_conocimiento:
+            if regla[0] == "ruta(X, Y, Distancia)":
+                if regla[1].replace("X", punto_actual) in cerrados:
+                    continue
+                nuevo_punto = regla[2].replace("X", punto_actual).replace("Y", "")
+                distancia = int(regla[2].split(", ")[2].replace(")", ""))
+                nuevo_recorrido_g = recorrido_g[punto_actual] + distancia
+                if nuevo_punto not in [punto[0] for punto in abiertos]:
+                    abiertos.append((nuevo_punto, nuevo_recorrido_g + buscar(nuevo_punto, destino)))
+                    ruta_actual[nuevo_punto] = punto_actual
+                    recorrido_g[nuevo_punto] = nuevo_recorrido_g
+                elif nuevo_recorrido_g < recorrido_g[nuevo_punto]:
+                    abiertos = [punto for punto in abiertos if punto[0] != nuevo_punto]
+                    abiertos.append((nuevo_punto, nuevo_recorrido_g + buscar(nuevo_punto, destino)))
+                    ruta_actual[nuevo_punto] = punto_actual
+                    recorrido_g[nuevo_punto] = nuevo_recorrido_g
+
+    # Si no se encuentra
+	return None
